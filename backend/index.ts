@@ -32,6 +32,7 @@ loginContract.events
 
 const app = express();
 app.use(bodyParser.json());
+app.use("/", express.static("../frontend"));
 app.use(cors());
 
 const secret =
@@ -39,6 +40,7 @@ const secret =
 
 const verifyToken: RequestHandler = (req, res, next) => {
   try {
+    console.log(req.body);
     req.body.jwt = jwt.verify(req.body.token, secret);
     next();
   } catch (e) {
@@ -91,7 +93,7 @@ app.post("/getStandardAccess", verifyToken, (req, res) => {
   } else res.sendStatus(401);
 });
 
-app.get("/getBalance", verifyToken, async (req, res) => {
+app.post("/getBalance", verifyToken, async (req, res) => {
   if (
     !req.body.jwt ||
     !req.body.jwt.address ||
@@ -100,7 +102,7 @@ app.get("/getBalance", verifyToken, async (req, res) => {
     res.sendStatus(401);
   }
   let balance = await web3.eth.getBalance(req.body.jwt.address);
-  balance = web3.utils.fromWei(balance) + ' ETH';
+  balance = web3.utils.fromWei(balance) + " ETH";
   res.json({ balance });
 });
 
